@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client"
+  output   = "../src/generated"
 }
 
 datasource db {
@@ -18,12 +19,11 @@ model User {
   name     String
   email    String? @unique
   isActive Boolean @default(false)
-  colour   String  @default("#3B82F6") // Blue in hex
+  colour   String  @default("#3B82F6")
 
-  // New fields based on requirements
-  urls            String[] // Array of URLs
-  totalActiveTime Int      @default(0) // Total active time in seconds
-  bio             String? // User bio (optional)
+  urls            String[]
+  totalActiveTime Int      @default(0)
+  bio             String?
 
   // Timestamps
   createdAt    DateTime @default(now())
