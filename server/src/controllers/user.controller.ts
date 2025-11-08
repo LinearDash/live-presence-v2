@@ -78,8 +78,27 @@ export const getAllUser = async (req: Request, res: Response) => {
   }
 }
 export const getUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
 
-}
+    if (!id) {
+      return res.status(400).json({ error: "UserId is required" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
 export const updateUser = async (req: Request, res: Response) => {
 
 }
