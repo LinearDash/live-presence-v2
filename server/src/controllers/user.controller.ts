@@ -43,7 +43,6 @@ export const createUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
-
     if (!id) {
       return res.status(400).json({ error: "UserId is required" })
     }
