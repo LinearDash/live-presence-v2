@@ -65,7 +65,17 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 }
 export const getAllUser = async (req: Request, res: Response) => {
+  try {
+    const allUser = await prisma.user.findMany();
+    if (!allUser) {
+      return res.status(404).json({ message: "No User found" })
+    }
 
+    return res.status(200).json(allUser);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
 export const getUser = async (req: Request, res: Response) => {
 
