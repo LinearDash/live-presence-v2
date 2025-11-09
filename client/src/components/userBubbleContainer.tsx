@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useState, useRef, useEffect } from "react"
 import UserBubble from "./userBubble"
 import type { User } from "@/types/user"
 
@@ -96,11 +96,17 @@ export default function UserBubblesContainer({
   currentUser = currentUserDummy,
   onUserSelect = (user) => console.log("Selected:", user),
 }: Partial<UserBubblesContainerProps>) {
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 })
+  const containerRef = useRef<HTMLDivElement>(null)
+
   const otherUsers = useMemo(() => users.filter((u) => u.id !== currentUser.id), [users, currentUser.id])
 
-  // Calculate positions for surrounding bubbles in a circle
+  // Calculate positions for surrounding bubbles in a circle - increased radius
   const bubblePositions = useMemo(() => {
-    const radius = 200
+    // Increased radius to prevent overlap - mobile: 180px, desktop: 280px
+    const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 180 : 280
     const angle = (360 / otherUsers.length) * (Math.PI / 180)
     return otherUsers.map((_, index) => ({
       x: Math.cos(index * angle) * radius,
@@ -108,29 +114,87 @@ export default function UserBubblesContainer({
     }))
   }, [otherUsers])
 
-  return (
-    <div className="relative w-full h-screen flex items-center justify-center">
-      {/* Center bubble - current user */}
-      <div
-        className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer"
-        onClick={() => onUserSelect(currentUser)}
-      >
-        <UserBubble user={currentUser} isCurrentUser={true} size="lg" />
-      </div>
+  // Mouse/Touch handlers
+  const handleStart = (clientX: number, clientY: number) => {
+    setIsDragging(true)
+    setStartPos({ x: clientX - pan.x, y: clientY - pan.y })
+  }
 
-      {/* Surrounding bubbles */}
-      {otherUsers.map((user, index) => (
+  const handleMove = (clientX: number, clientY: number) => {
+    if (!isDragging) return
+    setPan({
+      x: clientX - startPos.x,
+      y: clientY - startPos.y,
+    })
+  }
+
+  const handleEnd = () => {
+    setIsDragging(false)
+  }
+
+  // Mouse events
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientX, e.clientY)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handleMove(e.clientX, e.clientY)
+  }
+
+  // Touch events
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleStart(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    handleMove(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  useEffect(() => {
+    const handleMouseUp = () => handleEnd()
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => window.removeEventListener('mouseup', handleMouseUp)
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleEnd}
+    >
+      <div
+        className="relative w-full h-full flex items-center justify-center transition-transform"
+        style={{
+          transform: `translate(${pan.x}px, ${pan.y}px)`,
+          transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+        }}
+      >
+        {/* Center bubble - current user */}
         <div
-          key={user.id}
-          className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer z-20"
-          style={{
-            transform: `translate(${bubblePositions[index].x}px, ${bubblePositions[index].y}px)`,
-          }}
-          onClick={() => onUserSelect(user)}
+          className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer"
+          onClick={() => onUserSelect(currentUser)}
         >
-          <UserBubble user={user} isCurrentUser={false} size="md" />
+          <UserBubble user={currentUser} isCurrentUser={true} size="lg" />
         </div>
-      ))}
+
+        {/* Surrounding bubbles */}
+        {otherUsers.map((user, index) => (
+          <div
+            key={user.id}
+            className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer z-20"
+            style={{
+              transform: `translate(${bubblePositions[index].x}px, ${bubblePositions[index].y}px)`,
+            }}
+            onClick={() => onUserSelect(user)}
+          >
+            <UserBubble user={user} isCurrentUser={false} size="md" />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
