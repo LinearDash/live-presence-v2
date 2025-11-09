@@ -21,5 +21,12 @@ export const createUserSchema = z.object({
   bio: z.string().optional(),
 });
 
+export const userBubblePropsSchema = z.object({
+  user: userSchema,
+  isCurrentUser: z.boolean().optional().default(false),
+  size: z.enum(['sm', 'md', 'lg']).optional().default('md'),
+});
+
 export type User = z.infer<typeof userSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type UserBubbleProps = z.infer<typeof userBubblePropsSchema>;
