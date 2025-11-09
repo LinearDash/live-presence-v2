@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import type { Request, Response, NextFunction } from 'express';
+import { PrismaClient } from '../generated/client';
 
 
 const prisma = new PrismaClient()
@@ -30,7 +30,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     const session = await prisma.session.findUnique({
       where: { token },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             email: true,
@@ -53,7 +53,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       return res.status(401).json({ error: 'Session expired' });
     }
 
-    req.user = session.user;
+    req.user = session.users;
 
     next();
   } catch (error) {
