@@ -25,7 +25,7 @@ export default function UserBubble({ user, isCurrentUser = false, size = "md" }:
           backgroundColor: user.colour,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-black/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-white/20 to-black/10 pointer-events-none" />
 
         {/* Bubble content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
