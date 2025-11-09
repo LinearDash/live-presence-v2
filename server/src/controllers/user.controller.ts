@@ -1,6 +1,5 @@
 import { PrismaClient } from '../generated/client';
 import type { Request, Response } from 'express'
-import { error } from 'node:console';
 import { z } from 'zod';
 
 const prisma = new PrismaClient()

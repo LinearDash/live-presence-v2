@@ -16,8 +16,9 @@ datasource db {
 
 model User {
   id       String  @id @default(cuid())
-  name     String
-  email    String? @unique
+  name     String?
+  email    String  @unique
+  password String
   isActive Boolean @default(false)
   colour   String  @default("#3B82F6")
 
@@ -29,4 +30,21 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   lastActiveAt DateTime @default(now())
+
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
