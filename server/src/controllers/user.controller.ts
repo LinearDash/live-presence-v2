@@ -4,10 +4,6 @@ import { z } from 'zod';
 
 const prisma = new PrismaClient()
 
-const createUserSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
-});
 const updateUserSchema = z.object({
   name: z.string().min(1, { message: "Name must not be empty" }).optional(),
   email: z.string().email({ message: "Invalid email address" }).optional(),
@@ -19,43 +15,7 @@ const updateUserSchema = z.object({
   message: "At least one field must be provided for update",
 });
 
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const parsedData = createUserSchema.safeParse(req.body);
 
-
-    if (!parsedData.success) {
-      const formattedErrors = parsedData.error.issues.map((err) => ({
-        field: err.path.join('.'),
-        message: err.message,
-      }));
-      return res.status(400).json({
-        error: "Validation Failed",
-        details: formattedErrors,
-      })
-    }
-
-    const { name, email } = parsedData.data;
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
-
-    if (existingUser) {
-      return res.status(409).json({ error: 'User with this email already exists' })
-    }
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email
-      }
-    })
-    return res.status(201).json(newUser)
-  } catch (error) {
-    console.error('Error creating user:', error)
-    return res.status(500).json({ error: 'Internal server error' })
-  }
-}
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
@@ -178,5 +138,17 @@ export const updateUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error updating user:", error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+}
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    return res.json(user)
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return res.status(500).json({ error: 'Failed to get user' });
   }
 }

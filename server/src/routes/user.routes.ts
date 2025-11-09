@@ -1,11 +1,12 @@
 import express from "express";
-import { createUser, deleteUser, getAllUser, getUser, updateUser } from "../controllers/user.controller";
+import { deleteUser, getAllUser, getUser, updateUser } from "../controllers/user.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 
 const router = express.Router();
+router.use(authMiddleware)
 
-//Create and Delete User
-router.post("/createUser", createUser);
+//Delete User
 router.delete("/deleteUser", deleteUser);
 
 //Get all users
