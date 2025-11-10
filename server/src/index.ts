@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import { PrismaClient } from './generated/client'
 import userRoutes from './routes/user.routes.ts'
+import authRoutes from './routes/auth.routes.ts'
 import cookieParser from 'cookie-parser'
 import cors from "cors";
 
@@ -15,6 +16,7 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes)
 
 const PORT = process.env.PORT || 3000
 
