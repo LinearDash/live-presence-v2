@@ -153,3 +153,54 @@ export const logout = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Logout failed' });
   }
 }
+export const refreshSession = async (req: Request, res: Response) => {
+  try {
+    const token = req.cookies.session_token;
+
+    if (!refreshSession) {
+      return res.status(401).json({ error: 'No session found' });
+    }
+
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            colour: true,
+            bio: true,
+            urls: true,
+          }
+        }
+      }
+    })
+
+    if (!session || session.expiresAt < new Date()) {
+      res.clearCookie('session_token');
+      return res.status(401).json({ error: 'Session expired' })
+    }
+
+    await prisma.session.update({
+      where: { id: session.id },
+      data: {
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    })
+    return res.status(200).json({
+      user: {
+        id: session.users.id,
+        email: session.users.email,
+        name: session.users.name,
+        colour: session.users.colour,
+        bio: session.users.bio,
+        urls: session.users.urls,
+      }
+    });
+  } catch (error) {
+    console.error('Session refresh error:', error);
+    return res.status(500).json({ error: 'Session refresh failed' });
+
+  }
+}
