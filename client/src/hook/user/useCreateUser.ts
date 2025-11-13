@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query"
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const createUser = async (userData: { name: string; email: string }) => {
-  const res = await fetch(`${API_BASE_URL}/users/createUser`, {
+  const res = await fetch(`${API_BASE_URL}/api/users/createUser`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData)

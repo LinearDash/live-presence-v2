@@ -1,120 +1,47 @@
 import { useMemo, useState, useRef, useEffect } from "react"
 import UserBubble from "./userBubble"
 import type { User } from "@/types/user"
+import { useGetAllUsers } from "@/hook/user/useGetAllUsers"
 
 interface UserBubblesContainerProps {
-  users: User[]
-  currentUser: User
+  currentUser: User | null
   onUserSelect: (user: User) => void
 }
 
-// Dummy data for testing
-const dummyUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    isActive: true,
-    colour: "#3B82F6",
-    urls: [],
-    totalActiveTime: 0,
-    bio: "Software Developer",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastActiveAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    isActive: true,
-    colour: "#8B5CF6",
-    urls: [],
-    totalActiveTime: 0,
-    bio: "Designer",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastActiveAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    isActive: false,
-    colour: "#EC4899",
-    urls: [],
-    totalActiveTime: 0,
-    bio: "Product Manager",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastActiveAt: new Date(),
-  },
-  {
-    id: "4",
-    name: "Sarah Williams",
-    email: "sarah@example.com",
-    isActive: true,
-    colour: "#10B981",
-    urls: [],
-    totalActiveTime: 0,
-    bio: "Marketing",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastActiveAt: new Date(),
-  },
-  {
-    id: "5",
-    name: "Alex Brown",
-    email: "alex@example.com",
-    isActive: false,
-    colour: "#F59E0B",
-    urls: [],
-    totalActiveTime: 0,
-    bio: "Data Analyst",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastActiveAt: new Date(),
-  },
-]
-
-const currentUserDummy: User = {
-  id: "current",
-  name: "You",
-  email: "you@example.com",
-  isActive: true,
-  colour: "#EF4444",
-  urls: [],
-  totalActiveTime: 0,
-  bio: "Current User",
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  lastActiveAt: new Date(),
-}
-
 export default function UserBubblesContainer({
-  users = dummyUsers,
-  currentUser = currentUserDummy,
+  currentUser,
   onUserSelect = (user) => console.log("Selected:", user),
-}: Partial<UserBubblesContainerProps>) {
+}: UserBubblesContainerProps) {
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [startPos, setStartPos] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const otherUsers = useMemo(() => users.filter((u) => u.id !== currentUser.id), [users, currentUser.id])
+  // Fetch all users
+  const { data: users = [], isLoading } = useGetAllUsers();
 
-  // Calculate positions for surrounding bubbles in a circle - increased radius
+  // Filter out current user
+  const otherUsers = useMemo(() => {
+    if (!currentUser) return users;
+    return users.filter((u: User) => u.id !== currentUser.id);
+  }, [users, currentUser]);
+
+  // Calculate positions for surrounding bubbles in a circle
   const bubblePositions = useMemo(() => {
-    // Increased radius to prevent overlap - mobile: 180px, desktop: 280px
     const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 180 : 280
     const angle = (360 / otherUsers.length) * (Math.PI / 180)
-    return otherUsers.map((_, index) => ({
-      x: Math.cos(index * angle) * radius,
-      y: Math.sin(index * angle) * radius,
+
+    return otherUsers.map((_: User, index: number) => ({
+      x: Math.cos(angle * index) * radius,
+      y: Math.sin(angle * index) * radius,
     }))
   }, [otherUsers])
 
-  // Mouse/Touch handlers
+  // Mouse/Touch handlers - MOVED BEFORE useEffect
+  const handleEnd = () => {
+    setIsDragging(false)
+  }
+
   const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true)
     setStartPos({ x: clientX - pan.x, y: clientY - pan.y })
@@ -128,11 +55,6 @@ export default function UserBubblesContainer({
     })
   }
 
-  const handleEnd = () => {
-    setIsDragging(false)
-  }
-
-  // Mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     handleStart(e.clientX, e.clientY)
   }
@@ -141,13 +63,12 @@ export default function UserBubblesContainer({
     handleMove(e.clientX, e.clientY)
   }
 
-  // Touch events
-  const handleTouchStart = (e: React.TouchEvent) => {
-    handleStart(e.touches[0].clientX, e.touches[0].clientY)
-  }
-
   const handleTouchMove = (e: React.TouchEvent) => {
     handleMove(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleStart(e.touches[0].clientX, e.touches[0].clientY)
   }
 
   useEffect(() => {
@@ -155,6 +76,14 @@ export default function UserBubblesContainer({
     window.addEventListener('mouseup', handleMouseUp)
     return () => window.removeEventListener('mouseup', handleMouseUp)
   }, [])
+
+  if (isLoading) {
+    return <div>Loading users...</div>
+  }
+
+  if (!currentUser) {
+    return <div>Please log in to view users</div>
+  }
 
   return (
     <div
@@ -182,7 +111,7 @@ export default function UserBubblesContainer({
         </div>
 
         {/* Surrounding bubbles */}
-        {otherUsers.map((user, index) => (
+        {otherUsers.map((user: User, index: number) => (
           <div
             key={user.id}
             className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer z-20"
