@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
-import { PrismaClient } from './generated/client'
+import { prisma } from './config/db'
 import userRoutes from './routes/user.routes.ts'
 import authRoutes from './routes/auth.routes.ts'
 import cookieParser from 'cookie-parser'
@@ -10,7 +10,6 @@ import { initializeSocket } from './config/socket.config.ts'
 import { setupSocketHandlers } from './events/socketHandlers.ts'
 
 const app = express()
-const prisma = new PrismaClient()
 const httpServer = createServer(app);
 
 app.use(cors({

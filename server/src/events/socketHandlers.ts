@@ -1,4 +1,4 @@
-import { Socket, Server as SocketIOServer } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
 import { prisma } from '../config/db'
 
 
