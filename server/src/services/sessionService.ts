@@ -1,7 +1,6 @@
 import { randomBytes } from 'crypto'
-import { PrismaClient } from '../generated/client'
+import { prisma } from '../config/db'
 
-const prisma = new PrismaClient();
 
 export const createSession = async (userId: string) => {
   try {

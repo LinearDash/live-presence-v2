@@ -1,8 +1,6 @@
-import { PrismaClient } from '../generated/client';
 import type { Request, Response } from 'express'
 import { z } from 'zod';
-
-const prisma = new PrismaClient()
+import { prisma } from '../config/db'
 
 const updateUserSchema = z.object({
   name: z.string().min(1, { message: "Name must not be empty" }).optional(),

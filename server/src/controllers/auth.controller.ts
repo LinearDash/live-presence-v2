@@ -1,10 +1,9 @@
 import type { Request, Response } from 'express';
-import { PrismaClient } from '../generated/client';
 import z from 'zod';
 import bcrypt from 'bcrypt';
 import { createSession, deleteSession } from '../services/sessionService';
+import { prisma } from '../config/db'
 
-const prisma = new PrismaClient()
 
 const registerSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),

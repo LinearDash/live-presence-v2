@@ -1,8 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '../generated/client';
+import { prisma } from '../config/db'
 
-
-const prisma = new PrismaClient()
 
 declare global {
   namespace Express {
