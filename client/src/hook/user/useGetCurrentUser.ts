@@ -32,6 +32,7 @@ export const useGetCurrentUser = () => {
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
+    refetchOnMount: false,
     enabled: !!localStorage.getItem('token'), // Only run if token exists
   });
 };

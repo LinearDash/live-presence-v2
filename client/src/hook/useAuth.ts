@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
+import { queryClient } from '@/lib/queryClient';
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -11,8 +12,15 @@ export const useAuth = () => {
 
     try {
       const data = await api.login({ email, password });
+
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
+
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'], refetchType: 'active' });
+
+      await queryClient.refetchQueries({
+        queryKey: ['currentUser']
+      });
       return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -28,8 +36,16 @@ export const useAuth = () => {
 
     try {
       const data = await api.register({ name, email, password });
+
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
+
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'], refetchType: "active" });
+
+      await queryClient.refetchQueries({
+        queryKey: ['currentUser']
+      });
+
       return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -39,9 +55,27 @@ export const useAuth = () => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+  const logout = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+
+
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      queryClient.clear();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Logout failed');
+      console.error('Logout error:', err);
+    } finally {
+      setLoading(false)
+    }
+
   };
 
   return { login, register, logout, loading, error };

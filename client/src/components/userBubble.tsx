@@ -65,7 +65,7 @@ export default function UserBubble({ user, isCurrentUser = false, size = "md" }:
       {/* Name label below for larger bubbles */}
       {size === "lg" && isCurrentUser && (
         <div className="mt-4 text-center">
-          <p className="text-foreground font-semibold text-lg">{user.name}</p>
+          <p className="text-white font-semibold text-lg">{user.name}</p>
           <p className="text-muted-foreground text-xs">You</p>
         </div>
       )}

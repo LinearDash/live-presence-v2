@@ -24,13 +24,14 @@ export const OnboardingDialog = () => {
         await register(formData.name, formData.email, formData.password);
       }
       setOpen(false);
+      window.location.reload();
     } catch (err) {
       console.error('Auth error:', err);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={() => { }}>
       <DialogContent showCloseButton={false} className='max-w-md border-2 shadow-xl'>
         {/* Content */}
         <div className="text-center space-y-4">
