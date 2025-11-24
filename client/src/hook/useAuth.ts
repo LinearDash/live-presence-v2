@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { queryClient } from '@/lib/queryClient';
+import { disconnectSocket } from '@/lib/socket';
+
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -63,6 +65,9 @@ export const useAuth = () => {
         method: 'POST',
         credentials: 'include',
       });
+
+      disconnectSocket();
+
       localStorage.removeItem('user');
       localStorage.removeItem('token');
 

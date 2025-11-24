@@ -1,38 +1,52 @@
-import { useEffect, useState } from "react"
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useState } from 'react';
+import { getSocket, disconnectSocket } from '@/lib/socket';
+import { useGetCurrentUser } from './user/useGetCurrentUser';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-let socket: Socket | null = null;
 
-export const useSocket = (userId: string | null) => {
+export const useSocket = () => {
+  const { data: currentUser } = useGetCurrentUser();
   const [isConnected, setIsConnected] = useState(false);
+  const socket = getSocket();
 
   useEffect(() => {
-    if (!userId) return;
+    // Only connect if user is logged in
+    if (!currentUser) {
+      disconnectSocket();
+      setIsConnected(false);
+      return;
+    }
 
-    socket = io(SOCKET_URL, {
-      withCredentials: true,
-    });
+    // Connect socket
+    socket.connect();
 
+    // Setup event listeners
     socket.on('connect', () => {
-      console.log('Socket connected:', socket?.id);
       setIsConnected(true);
-
-      // Tell server this user is online
-      socket?.emit('user:online', userId);
     });
+
+    socket.on('authenticated', (data) => {
+      console.log('✅ Socket authenticated:', data);
+
+    });
+
 
     socket.on('disconnect', () => {
-      console.log('Socket disconnected');
       setIsConnected(false);
     });
 
-    // Cleanup
-    return () => {
-      socket?.disconnect();
-      socket = null;
-    };
-  }, [userId])
+    socket.on('connect_error', (error) => {
+      console.error('❌ Socket connection error:', error);
+      setIsConnected(false);
+    });
 
-  return { socket, isConnected }
-}
+    // Cleanup on unmount
+    return () => {
+      socket.off('connect');
+      socket.off('authenticated');
+      socket.off('disconnect');
+      socket.off('connect_error');
+    };
+  }, [currentUser, socket]);
+
+  return { socket, isConnected };
+};
