@@ -1,13 +1,15 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import UserBubble from "./userBubble"
 import type { User } from "@/types/user"
 import { useGetAllUsers } from "@/hook/user/useGetAllUsers"
 import { useGetCurrentUser } from "@/hook/user/useGetCurrentUser"
+import UserSidebar from "./userSidebar"
 
 
 export default function UserBubblesContainer() {
   const { data: currentUser, isLoading: isLoadingCurrentUser, error: currentUserError } = useGetCurrentUser();
   const { data: users = [], isLoading: isLoadingUsers } = useGetAllUsers();
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   // Filter out current user
   const otherUsers = useMemo(() => {
@@ -72,7 +74,10 @@ export default function UserBubblesContainer() {
     <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Center bubble - current user */}
-        <div className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer">
+        <div
+          className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer"
+          onClick={() => setSelectedUser(currentUser)}
+        >
           <UserBubble user={currentUser} isCurrentUser={true} size="lg" />
         </div>
 
@@ -84,11 +89,19 @@ export default function UserBubblesContainer() {
             style={{
               transform: `translate(${bubblePositions[index].x}px, ${bubblePositions[index].y}px)`,
             }}
+            onClick={() => setSelectedUser(user)}
           >
             <UserBubble user={user} isCurrentUser={false} size="md" />
           </div>
         ))}
       </div>
+      {/* Sidebar */}
+      {selectedUser && (
+        <UserSidebar
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
     </div>
   )
 }
