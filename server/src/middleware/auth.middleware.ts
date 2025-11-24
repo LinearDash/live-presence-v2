@@ -19,8 +19,8 @@ declare global {
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
-    const token = req.cookies.session_token || req.headers.authorization?.replace('Bearer ', '');
 
+    const token = req.cookies.session_token || req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized - No token provided' });
     }

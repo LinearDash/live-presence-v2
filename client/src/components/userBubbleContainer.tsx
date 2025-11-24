@@ -1,24 +1,13 @@
-import { useMemo, useState, useRef, useEffect } from "react"
+import { useMemo } from "react"
 import UserBubble from "./userBubble"
 import type { User } from "@/types/user"
 import { useGetAllUsers } from "@/hook/user/useGetAllUsers"
+import { useGetCurrentUser } from "@/hook/user/useGetCurrentUser"
 
-interface UserBubblesContainerProps {
-  currentUser: User | null
-  onUserSelect: (user: User) => void
-}
 
-export default function UserBubblesContainer({
-  currentUser,
-  onUserSelect = (user) => console.log("Selected:", user),
-}: UserBubblesContainerProps) {
-  const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 })
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Fetch all users
-  const { data: users = [], isLoading } = useGetAllUsers();
+export default function UserBubblesContainer() {
+  const { data: currentUser, isLoading: isLoadingCurrentUser, error: currentUserError } = useGetCurrentUser();
+  const { data: users = [], isLoading: isLoadingUsers } = useGetAllUsers();
 
   // Filter out current user
   const otherUsers = useMemo(() => {
@@ -37,76 +26,53 @@ export default function UserBubblesContainer({
     }))
   }, [otherUsers])
 
-  // Mouse/Touch handlers - MOVED BEFORE useEffect
-  const handleEnd = () => {
-    setIsDragging(false)
+  // Loading states
+  if (isLoadingCurrentUser || isLoadingUsers) {
+    return (
+      <div className="relative w-full min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-4xl">⏳</div>
+          <p className="text-muted-foreground">Loading users...</p>
+        </div>
+      </div>
+    )
   }
 
-  const handleStart = (clientX: number, clientY: number) => {
-    setIsDragging(true)
-    setStartPos({ x: clientX - pan.x, y: clientY - pan.y })
+  // Error state
+  if (currentUserError) {
+    return (
+      <div className="relative w-full min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-4xl">⚠️</div>
+          <p className="text-muted-foreground">Failed to load current user</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
   }
 
-  const handleMove = (clientX: number, clientY: number) => {
-    if (!isDragging) return
-    setPan({
-      x: clientX - startPos.x,
-      y: clientY - startPos.y,
-    })
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    handleStart(e.clientX, e.clientY)
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    handleMove(e.clientX, e.clientY)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    handleMove(e.touches[0].clientX, e.touches[0].clientY)
-  }
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    handleStart(e.touches[0].clientX, e.touches[0].clientY)
-  }
-
-  useEffect(() => {
-    const handleMouseUp = () => handleEnd()
-    window.addEventListener('mouseup', handleMouseUp)
-    return () => window.removeEventListener('mouseup', handleMouseUp)
-  }, [])
-
-  if (isLoading) {
-    return <div>Loading users...</div>
-  }
-
+  // No current user (not logged in)
   if (!currentUser) {
-    return <div>Please log in to view users</div>
+    return (
+      <div className="relative w-full min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-4xl">👤</div>
+          <p className="text-muted-foreground">Please log in to see users</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleEnd}
-    >
-      <div
-        className="relative w-full h-full flex items-center justify-center transition-transform"
-        style={{
-          transform: `translate(${pan.x}px, ${pan.y}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s ease-out',
-        }}
-      >
+    <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-full flex items-center justify-center">
         {/* Center bubble - current user */}
-        <div
-          className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer"
-          onClick={() => onUserSelect(currentUser)}
-        >
+        <div className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer">
           <UserBubble user={currentUser} isCurrentUser={true} size="lg" />
         </div>
 
@@ -118,7 +84,6 @@ export default function UserBubblesContainer({
             style={{
               transform: `translate(${bubblePositions[index].x}px, ${bubblePositions[index].y}px)`,
             }}
-            onClick={() => onUserSelect(user)}
           >
             <UserBubble user={user} isCurrentUser={false} size="md" />
           </div>

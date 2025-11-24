@@ -78,8 +78,6 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const parsedData = loginSchema.safeParse(req.body);
-    console.log(parsedData);
-
 
     if (!parsedData.success) {
       const formattedErrors = parsedData.error.issues.map((error) => ({
@@ -106,6 +104,10 @@ export const login = async (req: Request, res: Response) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid Password' })
     }
+
+    await prisma.session.deleteMany({
+      where: { userId: user.id }
+    });
     const session = await createSession(user.id);
 
     res.cookie('session_token', session.token, {
@@ -124,7 +126,8 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         colour: user.colour,
         bio: user.bio,
-      }
+      },
+      token: session.token,
     });
   } catch (error) {
     console.error('Login error:', error);

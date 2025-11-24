@@ -4,10 +4,10 @@ import { authMiddleware } from "../middleware/auth.middleware";
 
 
 const router = express.Router();
-router.use(authMiddleware)
+// router.use(authMiddleware)
 
 //Delete User
-router.delete("/deleteUser", deleteUser);
+router.delete("/deleteUser", authMiddleware, deleteUser);
 
 //Get all users
 router.get("/getUsers", getAllUser);
@@ -16,9 +16,9 @@ router.get("/getUsers", getAllUser);
 router.get("/getUser/:id", getUser);
 
 //Get Current User
-router.get('/me', getCurrentUser)
+router.get('/me', authMiddleware, getCurrentUser)
 
 //Update User
-router.post("/updateUser/:id", updateUser);
+router.post("/updateUser/:id", authMiddleware, updateUser);
 
 export default router;

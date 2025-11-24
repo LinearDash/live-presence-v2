@@ -2,9 +2,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const api = {
   async login(credentials: { email: string; password: string }) {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(credentials),
     });
 
@@ -17,9 +18,10 @@ export const api = {
   },
 
   async register(userData: { name: string; email: string; password: string }) {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(userData),
     });
 
