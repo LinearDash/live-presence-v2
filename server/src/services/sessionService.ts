@@ -37,6 +37,9 @@ export const validateSession = async (token: string) => {
     });
 
     if (!session || session.expiresAt < new Date()) {
+      await prisma.session.delete({
+        where: { token }
+      })
       return null;
     }
 

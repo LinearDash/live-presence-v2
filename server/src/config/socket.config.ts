@@ -6,7 +6,10 @@ export const initializeSocket = (httpServer: HttpServer) => {
     cors: {
       origin: process.env.CLIENT_URL || 'http://localhost:5173',
       credentials: true,
-    }
-  })
+    },
+    allowRequest: async (req, callback) => {
+      callback(null, true);
+    },
+  });
   return io;
 }
