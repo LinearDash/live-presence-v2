@@ -31,7 +31,7 @@ export const OnboardingDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='max-w-md border-2 shadow-xl'>
+      <DialogContent showCloseButton={false} className='max-w-md border-2 shadow-xl'>
         {/* Content */}
         <div className="text-center space-y-4">
           <div className="text-6xl mb-4">👋</div>
