@@ -100,6 +100,7 @@ export default function UserBubblesContainer() {
         <UserSidebar
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
+          isCurrentUser={selectedUser.id === currentUser.id}
         />
       )}
     </div>

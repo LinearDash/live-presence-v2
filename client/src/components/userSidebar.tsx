@@ -1,18 +1,17 @@
 import { X, LogOut } from "lucide-react"
 import type { User } from "@/types/user"
-import { useGetCurrentUser } from "@/hook/user/useGetCurrentUser"
 import { useAuth } from "@/hook/useAuth"
 
 interface UserSidebarProps {
   user: User
   onClose: () => void
+  isCurrentUser: boolean
 }
 
-export default function UserSidebar({ user, onClose }: UserSidebarProps) {
-  const { data: currentUser } = useGetCurrentUser();
+export default function UserSidebar({ user, onClose, isCurrentUser }: UserSidebarProps) {
   const { logout } = useAuth();
+  console.log('user sidebar rendered', user);
 
-  const isCurrentUser = currentUser?.id === user.id;
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60)
