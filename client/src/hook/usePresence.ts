@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { getSocket } from '@/lib/socket';
 import type { User } from '@/types/user';
+import { queryClient } from '@/lib/queryClient';
 
 interface UserOnlineEvent {
   userId: string;
@@ -14,7 +14,6 @@ interface UserOfflineEvent {
 }
 
 export const usePresence = () => {
-  const queryClient = useQueryClient();
   const socket = getSocket();
 
   useEffect(() => {
@@ -36,7 +35,6 @@ export const usePresence = () => {
 
     // Listen for user going offline
     socket.on('user:offline', (data: UserOfflineEvent) => {
-      console.log('👋 User offline:', data);
 
       // Update all users query
       queryClient.setQueryData(['users'], (oldData: User[] | undefined) => {
@@ -55,5 +53,5 @@ export const usePresence = () => {
       socket.off('user:online');
       socket.off('user:offline');
     };
-  }, [socket, queryClient]);
+  }, [socket]);
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSocket, disconnectSocket } from '@/lib/socket';
 import { useGetCurrentUser } from './user/useGetCurrentUser';
+import { queryClient } from '@/lib/queryClient';
 
 
 export const useSocket = () => {
@@ -24,8 +25,10 @@ export const useSocket = () => {
       setIsConnected(true);
     });
 
-    socket.on('authenticated', (data) => {
+    socket.on('authenticated', async (data) => {
       console.log('✅ Socket authenticated:', data);
+
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
 
     });
 
