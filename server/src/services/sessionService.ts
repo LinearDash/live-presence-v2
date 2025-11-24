@@ -26,9 +26,11 @@ export const validateSession = async (token: string) => {
             id: true,
             email: true,
             name: true,
+            isActive: true,
             colour: true,
             bio: true,
             urls: true,
+            createdAt: true
           }
         }
       }

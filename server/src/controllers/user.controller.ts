@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express'
 import { z } from 'zod';
 import { prisma } from '../config/db'
+import { validateSession } from '../services/sessionService';
 
 const updateUserSchema = z.object({
   name: z.string().min(1, { message: "Name must not be empty" }).optional(),
@@ -140,11 +141,21 @@ export const updateUser = async (req: Request, res: Response) => {
 }
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({ error: 'Not authenticated' });
+    const sessionToken = req.cookies.session_token;
+
+    if (!sessionToken) {
+      return res.status(401).json({ error: 'Not authenticated - No session token' });
     }
-    return res.json(user)
+
+    // Validate session and get user
+    const session = await validateSession(sessionToken);
+
+    if (!session) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+
+    // Return user from session
+    return res.status(200).json(session.users);
   } catch (error) {
     console.error('Error getting current user:', error);
     return res.status(500).json({ error: 'Failed to get user' });

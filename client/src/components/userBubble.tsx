@@ -2,6 +2,8 @@ import { Unplug } from "lucide-react"
 import type { UserBubbleProps } from "@/types/user"
 
 export default function UserBubble({ user, isCurrentUser = false, size = "md" }: UserBubbleProps) {
+  console.log(user);
+
   const sizeClasses = {
     sm: "w-20 h-20 text-xs",
     md: "w-28 h-28 text-sm",
