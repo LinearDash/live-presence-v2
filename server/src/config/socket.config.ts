@@ -6,12 +6,12 @@ export const initializeSocket = (httpServer: HttpServer) => {
     cors: {
       origin: process.env.CLIENT_URL || 'http://localhost:5173',
       credentials: true,
-      methods: ['GET', 'POST']
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type']
 
     },
-    allowRequest: async (req, callback) => {
-      callback(null, true);
-    },
+    transports: ['websocket', 'polling'],
+    allowEIO3: true
   });
   return io;
 }

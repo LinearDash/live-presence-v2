@@ -8,7 +8,8 @@ export const getSocket = (): Socket => {
   if (!socket) {
     socket = io(SOCKET_URL, {
       withCredentials: true, // Send cookies
-      autoConnect: false, // Don't connect automatically
+      transports: ['websocket', 'polling'],
+      autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
