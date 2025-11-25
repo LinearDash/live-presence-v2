@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { User } from '@/types/user';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getCurrentUser = async (): Promise<User> => {
 
@@ -33,6 +33,5 @@ export const useGetCurrentUser = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
     refetchOnMount: false,
-    enabled: !!localStorage.getItem('token'), // Only run if token exists
   });
 };
