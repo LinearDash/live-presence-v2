@@ -58,7 +58,6 @@ export const register = async (req: Request, res: Response) => {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
-      domain: undefined
     })
     return res.status(201).json({
       message: "User registered successfully",
@@ -117,7 +116,7 @@ export const login = async (req: Request, res: Response) => {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
-      domain: undefined
+
     });
 
     return res.status(200).json({
@@ -149,7 +148,6 @@ export const logout = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      domain: undefined
     });
     return res.status(200).json({ message: 'Logged out successfully' });
 

@@ -12,10 +12,24 @@ import { setupSocketHandlers } from './events/socketHandlers'
 const app = express()
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  process.env.COOKIE_DOMAIN,
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: process.env.COOKIE_DOMAIN,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-}))
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json())
 app.use(cookieParser())
 app.use('/api/users', userRoutes)

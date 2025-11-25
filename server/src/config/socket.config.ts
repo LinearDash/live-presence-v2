@@ -6,6 +6,8 @@ export const initializeSocket = (httpServer: HttpServer) => {
     cors: {
       origin: process.env.CLIENT_URL || 'http://localhost:5173',
       credentials: true,
+      methods: ['GET', 'POST']
+
     },
     allowRequest: async (req, callback) => {
       callback(null, true);
