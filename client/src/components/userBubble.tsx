@@ -17,8 +17,9 @@ export default function UserBubble({ user, isCurrentUser = false, size = "md" }:
 
   const sizeClass = sizeClasses[size]
   const iconSize = iconSizes[size]
+  console.log(user);
 
-  const initials = user.name
+  const initials = (user.name || "??")
     .split(" ")
     .map((n) => n[0])
     .join("")
