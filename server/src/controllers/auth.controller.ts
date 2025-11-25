@@ -1,4 +1,4 @@
-import type { CookieOptions, Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import z from 'zod';
 import bcrypt from 'bcrypt';
 import { createSession, deleteSession } from '../services/sessionService';
@@ -16,25 +16,6 @@ const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
 });
-const isProduction = process.env.NODE_ENV === 'production';
-
-const cookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? 'none' : 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: '/',
-  domain: isProduction ? process.env.COOKIE_DOMAIN : undefined
-};
-
-const clearCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? 'none' : 'lax',
-  path: '/',
-  domain: isProduction ? process.env.COOKIE_DOMAIN : undefined
-};
-
 export const register = async (req: Request, res: Response) => {
   try {
     const parsedData = registerSchema.safeParse(req.body);
@@ -71,7 +52,14 @@ export const register = async (req: Request, res: Response) => {
     })
     const session = await createSession(user.id);
 
-    res.cookie('session_token', session.token, cookieOptions)
+    res.cookie('session_token', session.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+      domain: undefined
+    })
     return res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -123,7 +111,14 @@ export const login = async (req: Request, res: Response) => {
     });
     const session = await createSession(user.id);
 
-    res.cookie('session_token', session.token, cookieOptions);
+    res.cookie('session_token', session.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+      domain: undefined
+    });
 
     return res.status(200).json({
       message: 'Login successful',
@@ -149,7 +144,13 @@ export const logout = async (req: Request, res: Response) => {
     if (token) {
       await deleteSession(token);
     }
-    res.clearCookie('session_token', clearCookieOptions);
+    res.clearCookie('session_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      domain: undefined
+    });
     return res.status(200).json({ message: 'Logged out successfully' });
 
   } catch (error) {
@@ -161,7 +162,7 @@ export const refreshSession = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.session_token;
 
-    if (!token) {
+    if (!refreshSession) {
       return res.status(401).json({ error: 'No session found' });
     }
 
@@ -182,17 +183,16 @@ export const refreshSession = async (req: Request, res: Response) => {
     })
 
     if (!session || session.expiresAt < new Date()) {
-      res.clearCookie('session_token', clearCookieOptions);
+      res.clearCookie('session_token');
       return res.status(401).json({ error: 'Session expired' })
     }
 
-    const updatedSession = await prisma.session.update({
+    await prisma.session.update({
       where: { id: session.id },
       data: {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       }
     })
-    res.cookie('session_token', updatedSession.token, cookieOptions);
     return res.status(200).json({
       user: {
         id: session.users.id,

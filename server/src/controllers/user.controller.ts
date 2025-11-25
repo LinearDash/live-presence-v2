@@ -1,16 +1,7 @@
-import type { CookieOptions, Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { z } from 'zod';
 import { prisma } from '../config/db'
 import { validateSession } from '../services/sessionService';
-
-const isProduction = process.env.NODE_ENV === 'production';
-const clearCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? 'none' : 'lax',
-  path: '/',
-  domain: isProduction ? process.env.COOKIE_DOMAIN : undefined
-};
 
 const updateUserSchema = z.object({
   name: z.string().min(1, { message: "Name must not be empty" }).optional(),
@@ -160,7 +151,6 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     const session = await validateSession(sessionToken);
 
     if (!session) {
-      res.clearCookie('session_token', clearCookieOptions);
       return res.status(401).json({ error: 'Invalid or expired session' });
     }
 
