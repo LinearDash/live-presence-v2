@@ -12,8 +12,21 @@ import { setupSocketHandlers } from './events/socketHandlers'
 const app = express()
 const httpServer = createServer(app);
 
+const allowedOrigins = (process.env.CLIENT_URLS ?? 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+app.set('trust proxy', 1);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    console.warn(`Blocked CORS request from origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }))
 app.use(express.json())

@@ -12,6 +12,7 @@ const getCurrentUser = async (): Promise<User> => {
     },
     credentials: 'include',
   });
+  console.log(response);
 
   if (!response.ok) {
     if (response.status === 401) {
