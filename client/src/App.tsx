@@ -4,6 +4,7 @@ import { useGetCurrentUser } from './hook/user/useGetCurrentUser';
 import { useSocket } from './hook/useSocket';
 import { usePresence } from './hook/usePresence';
 import './index.css'
+import LoadingPage from './components/common/loadingPage';
 
 function App() {
 
@@ -15,12 +16,7 @@ function App() {
   // Show loading while checking authentication
   if (isLoading) {
     return (
-      <div className='bg-black min-h-screen flex items-center justify-center'>
-        <div className="text-center space-y-4">
-          <div className="text-4xl">⏳</div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
+      <LoadingPage message="Checking authentication..." />
     );
   }
 
