@@ -7,7 +7,7 @@ import UserSidebar from "./userSidebar"
 import LoadingPage from "./common/loadingPage"
 
 
-export default function UserBubblesContainer() {
+export default function UserBubblesContainer({ showAllUsers }: { showAllUsers: boolean }) {
   const { data: currentUser, isLoading: isLoadingCurrentUser, error: currentUserError } = useGetCurrentUser();
   const { data: users = [], isLoading: isLoadingUsers } = useGetAllUsers();
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -17,6 +17,11 @@ export default function UserBubblesContainer() {
     if (!currentUser) return users;
     return users.filter((u: User) => u.id !== currentUser.id);
   }, [users, currentUser]);
+
+  //Active users only
+  const activeUsers = useMemo(() => {
+    return otherUsers.filter((user: User) => user.isActive);
+  }, [otherUsers]);
 
   // Calculate positions for surrounding bubbles in a circle
   const bubblePositions = useMemo(() => {
@@ -66,7 +71,8 @@ export default function UserBubblesContainer() {
     )
   }
 
-  return (
+  if (showAllUsers) {
+    return (
     <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Center bubble - current user */}
@@ -101,4 +107,42 @@ export default function UserBubblesContainer() {
       )}
     </div>
   )
+  } else {
+    return (
+    <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Center bubble - current user */}
+        <div
+          className="absolute z-50 hover:scale-110 transition-transform duration-300 cursor-pointer"
+          onClick={() => setSelectedUser(currentUser)}
+        >
+          <UserBubble user={currentUser} isCurrentUser={true} size="lg" />
+        </div>
+
+        {/* Surrounding bubbles */}
+        {activeUsers.map((user: User, index: number) => (
+          <div
+            key={user.id}
+            className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer z-20"
+            style={{
+              transform: `translate(${bubblePositions[index].x}px, ${bubblePositions[index].y}px)`,
+            }}
+            onClick={() => setSelectedUser(user)}
+          >
+            <UserBubble user={user} isCurrentUser={false} size="md" />
+          </div>
+        ))}
+      </div>
+      {/* Sidebar */}
+      {selectedUser && (
+        <UserSidebar
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+          isCurrentUser={selectedUser.id === currentUser.id}
+        />
+      )}
+    </div>
+  )
+  }
+  
 }
