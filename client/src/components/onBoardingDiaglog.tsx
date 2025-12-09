@@ -13,7 +13,7 @@ export const OnboardingDialog = () => {
     password: ''
   });
 
-  const { login, register, loading, error } = useAuth();
+  const { login, register, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
