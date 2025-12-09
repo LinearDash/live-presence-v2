@@ -32,7 +32,7 @@ export default function UserBubblesContainer() {
   // Loading states
   if (isLoadingCurrentUser || isLoadingUsers) {
     return (
-     <LoadingPage message="Loading users..." />
+      <LoadingPage message="Loading users..." />
     )
   }
 
