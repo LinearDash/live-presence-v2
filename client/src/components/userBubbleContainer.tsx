@@ -4,6 +4,7 @@ import type { User } from "@/types/user"
 import { useGetAllUsers } from "@/hook/user/useGetAllUsers"
 import { useGetCurrentUser } from "@/hook/user/useGetCurrentUser"
 import UserSidebar from "./userSidebar"
+import LoadingPage from "./common/loadingPage"
 
 
 export default function UserBubblesContainer() {
@@ -31,12 +32,7 @@ export default function UserBubblesContainer() {
   // Loading states
   if (isLoadingCurrentUser || isLoadingUsers) {
     return (
-      <div className="relative w-full min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="text-4xl">⏳</div>
-          <p className="text-muted-foreground">Loading users...</p>
-        </div>
-      </div>
+      <LoadingPage message="Loading users..." />
     )
   }
 
