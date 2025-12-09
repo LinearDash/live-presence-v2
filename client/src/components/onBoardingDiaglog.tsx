@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dial
 import { Input } from './ui/input';
 import { useState } from 'react';
 import { useAuth } from '../hook/useAuth';
+import toast from 'react-hot-toast';
 
 export const OnboardingDialog = () => {
   const [open, setOpen] = useState(true);
@@ -20,12 +21,16 @@ export const OnboardingDialog = () => {
     try {
       if (isLogin) {
         await login(formData.email, formData.password);
+        
       } else {
         await register(formData.name, formData.email, formData.password);
+  
       }
       setOpen(false);
       window.location.reload();
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
+      toast.error(errorMessage);  
       console.error('Auth error:', err);
     }
   };
@@ -90,12 +95,6 @@ export const OnboardingDialog = () => {
               minLength={6}
             />
           </div>
-
-          {error && (
-            <div className="text-sm text-red-500 text-center">
-              {error}
-            </div>
-          )}
 
           {/* Submit Button */}
           <div className="pt-4">

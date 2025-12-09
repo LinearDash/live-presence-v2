@@ -11,7 +11,7 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Login failed with status ${response.status}`);
+      throw new Error(errorData.error || `Login failed with status ${response.status}`);
     }
 
     return response.json();
@@ -27,7 +27,7 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Registration failed with status ${response.status}`);
+      throw new Error(errorData.error || `Registration failed with status ${response.status}`);
     }
 
     return response.json();
