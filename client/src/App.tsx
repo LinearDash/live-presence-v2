@@ -6,10 +6,13 @@ import { usePresence } from './hook/usePresence';
 import './index.css'
 import LoadingPage from './components/common/loadingPage';
 import ConnectionIndicator from './components/common/connectionIndicator';
+import { Switch } from './components/ui/switch';
+import { useState } from 'react';
 
 function App() {
 
   const { data: currentUser, isLoading } = useGetCurrentUser();
+  const [showAllUsers, setShowAllUsers] = useState(false);
 
   const { isConnected } = useSocket();
   usePresence();
@@ -20,11 +23,15 @@ function App() {
   }
   return (
     <div className='bg-black min-h-screen'>
-      {/* Connection indicator (optional) */}
-      {currentUser && ConnectionIndicator(isConnected)}
+      {currentUser && (
+      <div className="fixed m-4 top-4 left-4 z-50">
+        <Switch onClick={() => setShowAllUsers(!showAllUsers)} />
+        <label className="ml-2 text-white select-none">{showAllUsers ? "All Users" : "Active Users"}</label>
+      </div>
+      )}
+      {currentUser && <ConnectionIndicator isConnected={isConnected} />}
       {!currentUser && <OnboardingDialog />}
-      {currentUser && <UserBubblesContainer />}
-      
+      {currentUser && <UserBubblesContainer showAllUsers={showAllUsers} />}
     </div>
 
   );

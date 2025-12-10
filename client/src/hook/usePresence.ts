@@ -48,7 +48,6 @@ export const usePresence = () => {
       });
     });
 
-    // Cleanup
     return () => {
       socket.off('user:online');
       socket.off('user:offline');
