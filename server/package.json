@@ -15,7 +15,10 @@
   },
   "scripts": {
     "dev": "nodemon --exec bun run src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

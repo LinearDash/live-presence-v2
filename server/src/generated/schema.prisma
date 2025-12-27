@@ -33,6 +33,10 @@ model User {
 
   sessions Session[]
 
+  sentMessages     Message[]      @relation("sentMessages")
+  receivedMessages Message[]      @relation("receivedMessages")
+  conversations    Conversation[] @relation("userConversations")
+
   @@map("users")
 }
 
@@ -47,4 +51,53 @@ model Session {
   users User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants User[]    @relation("userConversations")
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  content     String      @db.Text
+  messageType MessageType @default(TEXT)
+  mediaUrl    String?
+
+  senderId String
+  sender   User   @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User   @relation("receivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  isDelivered Boolean   @default(false)
+  deliveredAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  GIF
 }

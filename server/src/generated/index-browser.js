@@ -146,6 +146,28 @@ exports.Prisma.SessionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ConversationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  messageType: 'messageType',
+  mediaUrl: 'mediaUrl',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  conversationId: 'conversationId',
+  isRead: 'isRead',
+  readAt: 'readAt',
+  isDelivered: 'isDelivered',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -160,11 +182,20 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.MessageType = exports.$Enums.MessageType = {
+  TEXT: 'TEXT',
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO',
+  AUDIO: 'AUDIO',
+  FILE: 'FILE',
+  GIF: 'GIF'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Session: 'Session'
+  Session: 'Session',
+  Conversation: 'Conversation',
+  Message: 'Message'
 };
 
 /**
