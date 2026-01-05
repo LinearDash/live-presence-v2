@@ -1,17 +1,15 @@
-import { X, LogOut } from "lucide-react"
+import { X, LogOut, Settings } from "lucide-react"
 import type { User } from "@/types/user"
 import { useAuth } from "@/hook/useAuth"
 
-interface UserSidebarProps {
+interface CurrentUserSidebarProps {
   user: User
   onClose: () => void
-  isCurrentUser: boolean
 }
 
-export default function UserSidebar({ user, onClose, isCurrentUser }: UserSidebarProps) {
+export default function CurrentUserSidebar({ user, onClose }: CurrentUserSidebarProps) {
   const { logout } = useAuth();
-  console.log('user sidebar rendered', user);
-
+  console.log('current user sidebar rendered', user);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60)
@@ -46,9 +44,7 @@ export default function UserSidebar({ user, onClose, isCurrentUser }: UserSideba
     <div className="w-96 bg-card border-l border-border h-screen overflow-y-auto shadow-xl flex flex-col z-50 fixed right-0 top-0">
       {/* Header */}
       <div className="p-6 border-b border-border sticky top-0 bg-card/95 backdrop-blur-sm flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">
-          {isCurrentUser ? "Your Profile" : "User Profile"}
-        </h2>
+        <h2 className="text-xl font-bold text-foreground">Your Profile</h2>
         <button
           onClick={onClose}
           className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
@@ -149,18 +145,23 @@ export default function UserSidebar({ user, onClose, isCurrentUser }: UserSideba
           </div>
         </div>
 
-        {/* Logout button - only for current user */}
-        {isCurrentUser && (
-          <div className="pt-4 border-t border-border">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-lg transition-colors font-semibold"
-            >
-              <LogOut size={18} />
-              Log Out
-            </button>
-          </div>
-        )}
+        {/* Settings and Logout buttons */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <button
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-lg transition-colors font-semibold"
+          >
+            <Settings size={18} />
+            Edit Profile
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-lg transition-colors font-semibold"
+          >
+            <LogOut size={18} />
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   )

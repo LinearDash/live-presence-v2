@@ -3,7 +3,8 @@ import UserBubble from "./userBubble"
 import type { User } from "@/types/user"
 import { useGetAllUsers } from "@/hook/user/useGetAllUsers"
 import { useGetCurrentUser } from "@/hook/user/useGetCurrentUser"
-import UserSidebar from "./userSidebar"
+import UserSidebar from "./sidebar/userSidebar"
+import CurrentUserSidebar from "./sidebar/currentUserSidebar"
 import LoadingPage from "./common/loadingPage"
 
 
@@ -97,14 +98,22 @@ export default function UserBubblesContainer({ showAllUsers }: { showAllUsers: b
           </div>
         ))}
       </div>
-      {/* Sidebar */}
-      {selectedUser && (
+      {/* Sidebar - showAllUsers */}
+      {selectedUser && selectedUser.id === currentUser.id ? (
+        <CurrentUserSidebar
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      ) : selectedUser ? (
         <UserSidebar
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
-          isCurrentUser={selectedUser.id === currentUser.id}
+          onMessage={() => {
+            // TODO: Handle open DM with user
+            console.log('Open DM with:', selectedUser.id);
+          }}
         />
-      )}
+      ) : null}
     </div>
   )
   } else {
@@ -133,14 +142,22 @@ export default function UserBubblesContainer({ showAllUsers }: { showAllUsers: b
           </div>
         ))}
       </div>
-      {/* Sidebar */}
-      {selectedUser && (
+      {/* Sidebar - activeUsersOnly */}
+      {selectedUser && selectedUser.id === currentUser.id ? (
+        <CurrentUserSidebar
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      ) : selectedUser ? (
         <UserSidebar
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
-          isCurrentUser={selectedUser.id === currentUser.id}
+          onMessage={() => {
+            // TODO: Handle open DM with user
+            console.log('Open DM with:', selectedUser.id);
+          }}
         />
-      )}
+      ) : null}
     </div>
   )
   }

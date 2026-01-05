@@ -4,6 +4,10 @@ import { api } from "@/lib/api";
 export const useGetConversations = () => {
   return useQuery({
     queryKey: ['conversations'],
-    queryFn: () => api.getConversations(),
+    queryFn: async () => {
+      const response = await api.getConversations();
+      // Extract conversations from the response structure
+      return response.conversations || [];
+    },
   });
 };
