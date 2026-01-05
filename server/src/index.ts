@@ -3,6 +3,8 @@ import express from 'express'
 import { prisma } from './config/db'
 import userRoutes from './routes/user.routes'
 import authRoutes from './routes/auth.routes'
+import messageRoutes from './routes/message.routes'
+
 import cookieParser from 'cookie-parser'
 import cors from "cors";
 import { createServer } from 'http';
@@ -34,6 +36,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use('/api/users', userRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api/messages',messageRoutes)
 
 const PORT = process.env.PORT || 3000
 

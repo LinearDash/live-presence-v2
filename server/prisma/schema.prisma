@@ -84,7 +84,7 @@ model Message{
   readAt DateTime?
   isDelivered Boolean @default(false)
   deliveredAt DateTime?
-
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
